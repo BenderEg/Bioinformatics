@@ -111,6 +111,37 @@ def reverse_complement(text):
 
 
 def find_frequent_words_with_mismatches(genome, k, d):
+    dict_1 = {a: 0 for a in range(4 ** k)}
+    dict_2 = {a: [] for a in range(4 ** k)}
+    result_array = []
+    for i in range(len(genome) - k + 1):
+        pattern = genome[i:i + k]
+        neighbors = create_neighbors(pattern, d)
+        for ele in neighbors:
+            dict_1[patternToNumber(ele)] += 1
+            dict_2[patternToNumber(ele)].append(i)
+        reverse_pattern = reverse_complement(pattern)
+        reverse_neighbors = create_neighbors(reverse_pattern, d)
+        for ele in reverse_neighbors:
+            dict_1[patternToNumber(ele)] += 1
+            dict_2[patternToNumber(ele)].append(i)
+    result_array = [key for m in [max(dict_1.values())] for key, val in dict_1.items() if val == m]
+    result = []
+    for ele in result_array:
+        result.append(numberToPattern(ele, k))
+    result_array_with_pattern_really_appear = []
+    for ele in result:
+        for i in range(len(genome) - k + 1):
+            pattern = genome[i:i + k]
+            if (pattern == ele and ele not in result_array_with_pattern_really_appear and reverse_complement(ele)
+                    not in result_array_with_pattern_really_appear):
+                result_array_with_pattern_really_appear.append(ele)
+                ##  result_array_with_pattern_really_appear.append(reverse_complement(ele))
+    output = ' '.join(result_array_with_pattern_really_appear)
+    return output
+
+
+def find_frequent_words_with_mismatches_additional(genome, k, d):
     dict = {a: 0 for a in range(4 ** k)}
     result_array = []
     for i in range(len(genome) - k + 1):
@@ -122,21 +153,35 @@ def find_frequent_words_with_mismatches(genome, k, d):
         reverse_neighbors = create_neighbors(reverse_pattern, d)
         for ele in reverse_neighbors:
             dict[patternToNumber(ele)] += 1
-    result_array = [key for m in [max(dict.values())] for key, val in dict.items() if val == m]
-    result = []
-    for ele in result_array:
-        result.append(numberToPattern(ele, k))
-    output = ' '.join(result)
-    return output
-
+    max_value = max(dict.values())
+    return max_value
 
 genome = create_data('Input.txt')[0]
 k = 9
-d = 1
-result = find_frequent_words_with_mismatches(genome, k, d)
+d = 2
 
-with open(r'C:\Users\Asus\Downloads\Output.txt', 'w') as fp:
-    fp.write(result)
+
+def find_max_starting_positions(text, k, d, L):
+    array_with_max = []
+    for i in range(len(text)-L):
+        genome = text[i:i+L]
+        array_with_max.append(find_frequent_words_with_mismatches_additional(genome, k, d))
+    max_value = max(array_with_max)
+    result_array = []
+    for i in range(len(array_with_max)):
+        if array_with_max[i] == max_value:
+            result_array.append(i)
+    return result_array
+
+
+# result = find_max_starting_positions(genome, k, d, 500)
+# print(result)
+genome_final_part = genome[400:900]
+result = find_frequent_words_with_mismatches(genome, k, d)
+print(result)
+
+# with open(r'C:\Users\Asus\Downloads\Output.txt', 'w') as fp:
+    # fp.write(result_string)
 
 end = datetime.datetime.now()
 elapsed_time = end - start
