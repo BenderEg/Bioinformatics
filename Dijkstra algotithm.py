@@ -99,11 +99,12 @@ V = int(array[0][0])
 array.remove(array[0])
 adjacency_list = create_adjacency_list_from_edges_list(array, V)
 
-def algorihtmDijkstra(array, V, N):
+def algorihtmDijkstra(array, V, Nstart, Nend):
     stack = BinHeap()
-    stack.insert(N, 0)
+    stack.insert(Nstart, 0)
     visited = [False] * V
-    distance = [float('inf')] * V
+    distance = {a: float('inf') for a in range(V)}
+    route = {a: 0 for a in range(V)}
     while stack.calclength() > 0:
         tmp = stack.deleteMin()
         visited[tmp[0]] = True
@@ -114,12 +115,19 @@ def algorihtmDijkstra(array, V, N):
                 if tmp_stack_value == None:
                     stack.insert(ele[0], ele[1] + tmp[1])
                     distance[ele[0]] = ele[1] + tmp[1]
+                    route[ele[0]] = tmp[0]
                 else:
                     tmp_insert_value = tmp[1] + ele[1]
                     if tmp_stack_value > tmp_insert_value:
                         stack.changeValue(ele[0], tmp_insert_value)
                         distance[ele[0]] = tmp_insert_value
-    return distance
+                        route[ele[0]] = tmp[0]
+    currentValue = Nend
+    result = [currentValue]
+    while currentValue != Nstart:
+        result.insert(0, route[currentValue])
+        currentValue = route[currentValue]
+    return result
 
-x = algorihtmDijkstra(adjacency_list, V, 0)
+x = algorihtmDijkstra(adjacency_list, V, 1, 4)
 print(x)
